@@ -1,0 +1,39 @@
+<div class="overlay" onclick="if(event.target===this) document.getElementById('modal-slot').innerHTML=''">
+  <div class="modal">
+    <h2>Новый пользователь</h2>
+    <form method="post" hx-post="{% url 'admin-user-add' %}" hx-target="#modal-slot" hx-swap="innerHTML" novalidate>
+      {% csrf_token %}
+      <div class="field">
+        <label>Логин *</label>
+        {{ form.username }}
+        {% if form.username.errors %}<div class="err">{{ form.username.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field">
+        <label>ФИО *</label>
+        {{ form.full_name }}
+        {% if form.full_name.errors %}<div class="err">{{ form.full_name.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field">
+        <label>Роль</label>
+        {{ form.role }}
+      </div>
+      <div class="field" id="dept-field-wrap">
+        <label>Отдел</label>
+        {{ form.department }}
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-slot').innerHTML=''">Отмена</button>
+        <button type="submit" class="btn btn-primary">Создать</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+(function(){
+  var roleSelect = document.querySelector('#modal-slot select[name="role"]');
+  var deptWrap = document.getElementById('dept-field-wrap');
+  function sync(){ deptWrap.style.display = (roleSelect.value === 'admin') ? 'none' : ''; }
+  roleSelect.addEventListener('change', sync);
+  sync();
+})();
+</script>

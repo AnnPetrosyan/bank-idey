@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Мои решения — Банк идей{% endblock %}
+{% block content %}
+  <h1 class="title">Мои решения</h1>
+  <div class="subtitle">Идеи, которые вы взяли на рассмотрение — независимо от того, чем закончилось решение.</div>
+  <div id="idea-page-body">
+    {% include 'ideas/_idea_page_body.html' %}
+  </div>
+{% endblock %}

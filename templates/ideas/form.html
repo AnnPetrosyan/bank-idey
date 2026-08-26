@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Новая идея — Банк идей{% endblock %}
+{% block content %}
+  <a href="{% url 'idea-list' %}" class="crumb">← Назад</a>
+  <h1 class="title">Новая идея</h1>
+  <div class="card" style="max-width:640px;">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="field">
+        <label>{{ form.title.label }} *</label>
+        {{ form.title }}
+        {% if form.title.errors %}<div class="err">{{ form.title.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field">
+        <label>{{ form.department.label }} *</label>
+        {{ form.department }}
+        <div class="hint" style="margin-top:6px;margin-bottom:0;">По умолчанию — ваш отдел, но можно выбрать любой другой.</div>
+      </div>
+      <div class="field">
+        <label>{{ form.category.label }} *</label>
+        {{ form.category }}
+        {% if form.category.errors %}<div class="err">{{ form.category.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field">
+        <label>{{ form.description.label }} *</label>
+        {{ form.description }}
+        {% if form.description.errors %}<div class="err">{{ form.description.errors.0 }}</div>{% endif %}
+      </div>
+      <button type="submit" class="btn btn-primary">Отправить на рассмотрение</button>
+      <a href="{% url 'idea-list' %}" class="btn btn-secondary" style="margin-left:8px;">Отмена</a>
+      <div class="hint">* — обязательные поля. После отправки идея получает статус «Новая» и попадает в общий список.</div>
+    </form>
+  </div>
+{% endblock %}

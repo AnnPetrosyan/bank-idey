@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Личный кабинет — Банк идей{% endblock %}
+{% block content %}
+  <h1 class="title">Личный кабинет</h1>
+  {% if is_admin %}
+    <div class="subtitle">Для администратора кабинет — профиль и быстрые ссылки на разделы управления.</div>
+  {% endif %}
+
+  <div class="profile-hero">
+    <div class="avatar">{{ request.user.profile.initials }}</div>
+    <div>
+      <div class="ph-name">{{ request.user.first_name|default:request.user.username }}</div>
+      <div class="ph-role">{{ request.user.profile.get_role_display }}{% if request.user.profile.department %} · {{ request.user.profile.department }}{% endif %}</div>
+      <div class="ph-login">Логин: {{ request.user.username }}</div>
+    </div>
+  </div>
+
+  {% if is_admin %}
+    <div class="hint">Раздел администратора будет собран вместе с остальными экранами управления (пользователи, категории, отделы).</div>
+  {% else %}
+    <div class="stats-row">
+      <a href="{% url 'my-ideas' %}" class="stat-card">
+        <div class="num">{{ mine_count }}</div>
+        <div class="lbl">Идей подано всего</div>
+      </a>
+      <a href="{% url 'my-ideas' %}" class="stat-card" style="--accent-color:#AF560A;">
+        <div class="num">{{ approved_count }}</div>
+        <div class="lbl">Согласовано руководителем</div>
+      </a>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <label class="section-label">Сводка по статусам</label>
+      {% if stats.by_status %}
+        <div class="stats-row">
+          {% for s in stats.by_status %}
+          <a href="{% url 'my-ideas' %}?status={{ s.value }}" class="stat-card" style="--accent-color:var(--{{ s.color }});">
+            <div class="num">{{ s.count }}</div>
+            <div class="lbl"><span class="d" style="background:var(--{{ s.color }});"></span>{{ s.label }}</div>
+          </a>
+          {% endfor %}
+        </div>
+        <div class="hint" style="margin-top:2px;">Нажмите на карточку статуса, чтобы открыть соответствующие идеи.</div>
+      {% else %}
+        <div class="hint" style="margin:0;">Идей пока нет.</div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <label class="section-label">Последние идеи</label>
+      {% for idea in recent_ideas %}
+        <a href="{% url 'idea-detail' idea.pk %}?from=my-ideas" class="mini-row clickable">
+          <span class="mr-title">{{ idea.title|truncatechars:48 }}</span>
+          <span class="badge {{ idea.badge_class }}"><span class="dot"></span>{{ idea.get_status_display }}</span>
+        </a>
+      {% empty %}
+        <div class="hint" style="margin:0;">Идей пока нет.</div>
+      {% endfor %}
+      <a href="{% url 'my-ideas' %}" class="btn btn-secondary btn-block" style="margin-top:18px;">Все мои идеи →</a>
+    </div>
+  {% endif %}
+{% endblock %}

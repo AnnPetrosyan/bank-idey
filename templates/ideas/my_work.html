@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Мои идеи в работе — Банк идей{% endblock %}
+{% block content %}
+  <h1 class="title">Мои идеи в работе</h1>
+  <div class="subtitle">Идеи, которые вы взяли в работу — независимо от текущего статуса.</div>
+  <div id="idea-page-body">
+    {% include 'ideas/_idea_page_body.html' %}
+  </div>
+{% endblock %}

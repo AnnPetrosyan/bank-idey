@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Пользователи — Банк идей{% endblock %}
+{% block content %}
+  <div class="toolbar">
+    <h1 class="title">Пользователи</h1>
+    <button class="btn btn-primary" hx-get="{% url 'admin-user-add' %}" hx-target="#modal-slot" hx-swap="innerHTML">+ Добавить пользователя</button>
+  </div>
+
+  {% if last_created_password %}
+    <div class="card" style="margin-bottom:16px;background:#FFF1E4;border-color:#F5C79A;">
+      <b class="hx">Пользователь создан.</b> Пароль для первого входа: <code>{{ last_created_password }}</code> — показывается один раз, дальше нигде не отображается в открытом виде.
+    </div>
+  {% endif %}
+
+  <div class="stats-row">
+    <a href="?" class="stat-card{% if not role_filter %} active{% endif %}">
+      <div class="num">{{ total_users }}</div>
+      <div class="lbl">Всего пользователей</div>
+    </a>
+    {% for r in role_counts %}
+      <a href="?role={{ r.value }}" class="stat-card{% if role_filter == r.value %} active{% endif %}">
+        <div class="num">{{ r.count }}</div>
+        <div class="lbl">{{ r.label }}</div>
+      </a>
+    {% endfor %}
+  </div>
+  <div class="hint" style="margin-top:-12px;margin-bottom:16px;">Нажмите на карточку роли, чтобы отфильтровать список ниже.</div>
+
+  <form method="get" class="filters-row">
+    <select name="role" class="select" onchange="this.form.submit()">
+      <option value="">Все роли</option>
+      {% for value, label in role_choices %}
+        <option value="{{ value }}" {% if role_filter == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="department" class="select" onchange="this.form.submit()">
+      <option value="">Все отделы</option>
+      {% for d in departments %}
+        <option value="{{ d.id }}" {% if dept_filter == d.id|stringformat:'s' %}selected{% endif %}>{{ d.name }}</option>
+      {% endfor %}
+    </select>
+    {% if filters_active %}<a href="?" class="btn btn-secondary">Сбросить фильтры</a>{% endif %}
+  </form>
+
+  <div class="card" style="padding:0;">
+    {% if users %}
+      <div class="user-list">
+        {% for u in users %}
+          <div class="user-row">
+            <div class="avatar">{{ u.profile.initials }}</div>
+            <div class="user-row-info">
+              <div class="user-row-name">{{ u.first_name|default:u.username }}</div>
+              <div class="user-row-login">{{ u.username }}</div>
+            </div>
+            <span class="role-pill role-{{ u.profile.role }}">{{ u.profile.get_role_display }}</span>
+            <span class="user-row-dept">{{ u.profile.department|default:"—" }}</span>
+            <div class="user-row-actions">
+              <span class="icon-btn" hx-get="{% url 'admin-user-edit' u.pk %}" hx-target="#modal-slot" hx-swap="innerHTML" title="Редактировать">
+                <svg class="ic" width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.3 3.3 14.7 6.7 6.2 15.2H2.8v-3.4L11.3 3.3Z"/></svg>
+              </span>
+              {% if u != request.user %}
+                <span class="icon-btn" hx-get="{% url 'admin-user-delete' u.pk %}" hx-target="#modal-slot" hx-swap="innerHTML" title="Удалить">
+                  <svg class="ic" width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4.5l9 9M13.5 4.5l-9 9"/></svg>
+                </span>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state" style="padding:44px 20px;">
+        <div class="msg" style="font-size:14px;">Под выбранные фильтры не подходит ни один пользователь.</div>
+      </div>
+    {% endif %}
+  </div>
+  <div class="hint">Логин и первичный пароль выдаются администратором; самостоятельной регистрации нет. Пароли нигде не хранятся и не отображаются в открытом виде.</div>
+
+  <div id="modal-slot"></div>
+{% endblock %}

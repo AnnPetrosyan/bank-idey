@@ -1,0 +1,13 @@
+<div class="overlay" onclick="if(event.target===this) document.getElementById('modal-slot').innerHTML=''">
+  <div class="modal">
+    <h2>Удалить пользователя?</h2>
+    <p style="color:var(--text2);font-size:16px;line-height:1.5;">Пользователь <b>{{ target.first_name|default:target.username }}</b> ({{ target.username }}) будет удалён без возможности восстановления.</p>
+    <form method="post" hx-post="{% url 'admin-user-delete' target.pk %}" hx-target="#modal-slot" hx-swap="innerHTML">
+      {% csrf_token %}
+      <div class="actions">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-slot').innerHTML=''">Отмена</button>
+        <button type="submit" class="btn btn-danger">Удалить</button>
+      </div>
+    </form>
+  </div>
+</div>

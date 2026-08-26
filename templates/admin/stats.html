@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Статистика — Банк идей{% endblock %}
+{% block content %}
+  <h1 class="title">Статистика</h1>
+  <div class="subtitle">Аналитика по идеям, пользователям и категориям.</div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="num">{{ total }}</div><div class="lbl">Всего идей</div></div>
+    <div class="stat-card"><div class="num">{{ total_users }}</div><div class="lbl">Пользователей</div></div>
+    <div class="stat-card"><div class="num">{{ total_categories }}</div><div class="lbl">Категорий</div></div>
+    <div class="stat-card" style="--accent-color:#AF560A;"><div class="num">{{ approved_total }}</div><div class="lbl">Согласовано руководителем</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <label class="section-label">По статусам</label>
+    <div class="stats-row">
+      <a href="{% url 'idea-list' %}" class="stat-card">
+        <div class="num">{{ status_stats.total }}</div>
+        <div class="lbl">Всего идей</div>
+      </a>
+      {% for s in status_stats.by_status %}
+      <a href="{% url 'idea-list' %}?status={{ s.value }}" class="stat-card" style="--accent-color:var(--{{ s.color }});">
+        <div class="num">{{ s.count }}</div>
+        <div class="lbl"><span class="d" style="background:var(--{{ s.color }});"></span>{{ s.label }}</div>
+      </a>
+      {% endfor %}
+    </div>
+    <div class="hint" style="margin-top:2px;">Нажмите на карточку статуса, чтобы открыть отфильтрованный список идей.</div>
+  </div>
+
+  <div class="stats-equal-row">
+    <div class="stats-equal-cell"><div class="card">
+      <label class="section-label">По отделам</label>
+      {% for d in by_dept %}
+        <div class="mini-row"><span class="mr-title">{{ d.name }}</span><b class="hx">{{ d.count }}</b></div>
+      {% endfor %}
+    </div></div>
+    <div class="stats-equal-cell"><div class="card">
+      <label class="section-label">По категориям</label>
+      {% for c in by_cat %}
+        <div class="mini-row"><span class="mr-title">{{ c.name }}{% if c.archived %} <span style="opacity:.55;">(архив)</span>{% endif %}</span><b class="hx">{{ c.count }}</b></div>
+      {% endfor %}
+    </div></div>
+    <div class="stats-equal-cell"><div class="card">
+      <label class="section-label">Топ-3 автора</label>
+      {% for a in top_authors %}
+        <div class="mini-row"><span class="mr-title">{{ forloop.counter }}. {{ a.name }}</span><b class="hx">{{ a.count }}</b></div>
+      {% empty %}
+        <div class="hint" style="margin:0;">Идей пока нет.</div>
+      {% endfor %}
+    </div></div>
+  </div>
+{% endblock %}

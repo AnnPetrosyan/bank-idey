@@ -1,0 +1,24 @@
+{% if stats %}
+<div class="stats-row">
+  <div class="stat-card{% if not request.GET.status %} active{% endif %} clickable"
+       hx-get="{% url list_url_name %}" hx-target="#idea-page-body" hx-swap="innerHTML"
+       hx-vals='{"status": ""}'>
+    <div class="num">{{ stats.total }}</div>
+    <div class="lbl">Всего идей</div>
+  </div>
+  {% for s in stats.by_status %}
+  <div class="stat-card{% if request.GET.status == s.value %} active{% endif %} clickable"
+       style="--accent-color:var(--{{ s.color }});"
+       hx-get="{% url list_url_name %}" hx-target="#idea-page-body" hx-swap="innerHTML"
+       hx-vals='{"status": "{{ s.value }}"}'>
+    <div class="num">{{ s.count }}</div>
+    <div class="lbl"><span class="d" style="background:var(--{{ s.color }});"></span>{{ s.label }}</div>
+  </div>
+  {% endfor %}
+</div>
+<div class="hint" style="margin-top:-8px;margin-bottom:18px;">Нажмите на карточку статуса, чтобы отфильтровать список ниже.</div>
+{% endif %}
+
+<div id="idea-items" class="ideas-grid">
+  {% include 'ideas/_idea_items.html' %}
+</div>

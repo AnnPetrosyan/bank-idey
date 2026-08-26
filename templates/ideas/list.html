@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Все идеи — Банк идей{% endblock %}
+{% block content %}
+  <div class="toolbar">
+    <h1 class="title">Все идеи</h1>
+    <a href="{% url 'idea-create' %}" class="btn btn-primary">+ Создать идею</a>
+  </div>
+  <div class="subtitle">Общий список идей всех отделов и авторов, отсортирован по дате создания (сначала новые). Действия по идее зависят от вашей роли и статуса — откройте идею, чтобы их увидеть.</div>
+
+  <form hx-get="{% url 'idea-list' %}" hx-target="#idea-page-body" hx-swap="innerHTML" class="filters-row">
+    {{ filter.form.department }}
+    {{ filter.form.category }}
+  </form>
+  <script>
+    document.currentScript.previousElementSibling.querySelectorAll('select').forEach(function(sel){
+      sel.addEventListener('change', function(){ this.form.requestSubmit(); });
+    });
+  </script>
+
+  <div id="idea-page-body">
+    {% include 'ideas/_idea_page_body.html' %}
+  </div>
+{% endblock %}

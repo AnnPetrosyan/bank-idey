@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Режим бога — Банк идей{% endblock %}
+{% block content %}
+  <h1 class="title">Режим бога <span class="badge-extra">только администратор</span></h1>
+  <div class="subtitle">Ручное изменение статуса любой идеи в обход обычного потока согласования — используется для исправления ошибок, не является частью обычного сценария.</div>
+
+  <div class="card" style="max-width:520px;">
+    <form method="get">
+      <div class="field">
+        <label>Идея</label>
+        <select class="select" name="idea_id" onchange="this.form.submit()">
+          {% for i in ideas %}
+            <option value="{{ i.pk }}" {% if selected_idea.pk == i.pk %}selected{% endif %}>{{ i.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </form>
+
+    {% if selected_idea %}
+      <div style="margin:14px 0;">
+        Текущий статус: <span class="badge {{ selected_idea.badge_class }}"><span class="dot"></span>{{ selected_idea.get_status_display }}</span>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="idea_id" value="{{ selected_idea.pk }}">
+        <div class="field">
+          <label>Новый статус (любой, без ограничений обычного потока)</label>
+          <select class="select" name="new_status">
+            {% for value, label in status_choices %}
+              <option value="{{ value }}" {% if selected_idea.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-danger">Применить (в обход обычного потока)</button>
+        <div class="hint">Доступно только администратору.</div>
+      </form>
+    {% else %}
+      <div class="hint">Идей пока нет.</div>
+    {% endif %}
+  </div>
+{% endblock %}

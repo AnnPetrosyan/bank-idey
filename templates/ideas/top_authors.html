@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Топ авторов — Банк идей{% endblock %}
+{% block content %}
+  <h1 class="title">Топ авторов</h1>
+  <div class="subtitle">Рейтинг авторов идей. Длина полосы — доля от результата лидера, поэтому разрыв между авторами виден сразу, а не только по цифре.</div>
+
+  <form method="get" class="filters-row">
+    <input type="hidden" name="mode" value="{{ mode }}">
+    <select name="department" class="select" onchange="this.form.submit()">
+      <option value="">Все отделы</option>
+      {% for d in departments %}
+        <option value="{{ d.id }}" {% if d.id == selected_dept %}selected{% endif %}>{{ d.name }}</option>
+      {% endfor %}
+    </select>
+    <select name="category" class="select" onchange="this.form.submit()">
+      <option value="">Все категории</option>
+      {% for c in categories %}
+        <option value="{{ c.id }}" {% if c.id == selected_cat %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </form>
+  <div class="filters-row" style="margin-top:-10px;">
+    <a href="?department={{ selected_dept|default:'' }}&category={{ selected_cat|default:'' }}&mode=count" class="pillbtn {% if mode == 'count' %}on{% endif %}">По количеству идей</a>
+    <a href="?department={{ selected_dept|default:'' }}&category={{ selected_cat|default:'' }}&mode=approved" class="pillbtn {% if mode == 'approved' %}on{% endif %}">По согласованным идеям</a>
+    {% if filters_active %}<a href="?mode={{ mode }}" class="btn btn-secondary">Сбросить фильтры</a>{% endif %}
+  </div>
+
+  {% if rows %}
+    <div class="rank-list">
+      {% for row in rows %}
+        <div class="rank-row{% if row.is_me %} hl{% endif %}">
+          <div class="rank-num{% if row.is_top %} rank-num-top{% endif %}">{{ row.rank }}</div>
+          <div class="avatar">{{ row.initials }}</div>
+          <div class="rank-info">
+            <div class="rank-name">{{ row.user.first_name|default:row.user.username }}{% if row.is_me %} <span class="badge-extra">вы</span>{% endif %}</div>
+            <div class="rank-dept">{{ row.department|default:"—" }}</div>
+          </div>
+          <div class="rank-bar-wrap"><div class="rank-bar{% if row.is_top %} rank-bar-top{% endif %}" style="width:{{ row.pct }}%;"></div></div>
+          <div class="rank-score">{{ row.score }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="big"><svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 20 13.5 9h21L40 20"/><path d="M8 20v15a2.5 2.5 0 0 0 2.5 2.5h27A2.5 2.5 0 0 0 40 35V20"/><path d="M8 20h9.5l1.8 4h9.4l1.8-4H40"/></svg></div>
+      <div class="msg">Под выбранные фильтры не подходит ни один автор.</div>
+    </div>
+  {% endif %}
+
+  <div class="hint">«Согласовано» — идеи, которые прошли решение руководителя, независимо от того, чем закончилось дальше.</div>
+{% endblock %}

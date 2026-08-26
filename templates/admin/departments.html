@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load idea_extras %}
+{% block title %}Отделы — Банк идей{% endblock %}
+{% block content %}
+  <h1 class="title">Отделы</h1>
+  <div class="subtitle">Отделы, доступные при создании пользователя и идеи. Отдел нельзя удалить, пока в нём есть сотрудники — сначала переведите их в другой отдел через редактирование пользователя.</div>
+
+  {% if departments %}
+    <div class="stats-row" style="margin-bottom:24px;">
+      <div class="stat-card"><div class="num">{{ departments|length }}</div><div class="lbl">Всего отделов</div></div>
+      <div class="stat-card"><div class="num">{{ total_assigned }}</div><div class="lbl">Сотрудников распределено</div></div>
+    </div>
+  {% endif %}
+
+  <div class="card" style="margin-bottom:16px;">
+    {% if departments %}
+      {% for d in departments %}
+        <div class="mini-row">
+          <span class="mr-title">{{ d.name }}</span>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <span class="hint" style="margin:0;">{{ d.emp_count }} {{ d.emp_count|plural_employee }}</span>
+            <span class="hint" style="margin:0;">{{ d.idea_count }} {{ d.idea_count|plural_idea }}</span>
+            <form method="post" action="{% url 'admin-department-delete' d.pk %}" style="margin:0;">
+              {% csrf_token %}
+              <button type="submit" class="icon-btn" title="Удалить">
+                <svg class="ic" width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4.5l9 9M13.5 4.5l-9 9"/></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state" style="padding:44px 20px;">
+        <div class="msg" style="font-size:14px;">Отделов пока нет — добавьте первый ниже.</div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="card" style="max-width:440px;">
+    <form method="post" action="{% url 'admin-department-add' %}">
+      {% csrf_token %}
+      <div class="field" style="margin-bottom:12px;">
+        <label>Новый отдел</label>
+        <input class="input" type="text" name="name">
+      </div>
+      <button type="submit" class="btn btn-primary">Добавить отдел</button>
+      <div class="hint">Сразу становится доступен в форме создания пользователя и идеи.</div>
+    </form>
+  </div>
+{% endblock %}

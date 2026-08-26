@@ -1,0 +1,29 @@
+{% for idea in ideas %}
+  <a class="idea-card" href="{% url 'idea-detail' idea.pk %}?from={{ list_url_name }}">
+    <div class="idea-card-top">
+      <span class="eyebrow" style="margin:0;">{{ idea.department }} · {{ idea.category }}{% if not idea.category.is_active %} <span style="opacity:.55;">(архив)</span>{% endif %}</span>
+    </div>
+    <div class="idea-card-title">{{ idea.title }}</div>
+    <div class="idea-card-status">
+      <span class="badge {{ idea.badge_class }}"><span class="dot"></span>{{ idea.get_status_display }}</span>
+    </div>
+    <div class="idea-card-footer">
+      {% if show_author %}
+        <div class="avatar" style="width:26px;height:26px;font-size:11px;">{{ idea.author_initials }}</div>
+        <span class="idea-card-author">{{ idea.author.first_name|default:idea.author }}</span>
+      {% endif %}
+      <span class="idea-card-date">{{ idea.created_at|date:"d.m.Y" }}</span>
+    </div>
+  </a>
+{% empty %}
+  <div class="empty-state" style="grid-column:1/-1;">
+    <div class="big"><svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 20 13.5 9h21L40 20"/><path d="M8 20v15a2.5 2.5 0 0 0 2.5 2.5h27A2.5 2.5 0 0 0 40 35V20"/><path d="M8 20h9.5l1.8 4h9.4l1.8-4H40"/></svg></div>
+    <div class="msg">{{ empty_message|default:"Идей пока нет." }}</div>
+    {% if empty_cta_url %}<a href="{{ empty_cta_url }}" class="btn btn-primary" style="margin-top:16px;">{{ empty_cta_label }}</a>{% endif %}
+  </div>
+{% endfor %}
+{% if page_obj.has_next %}
+  <div id="load-more-row" style="grid-column:1/-1;text-align:center;">
+    <button hx-get="{% url list_url_name %}?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" hx-target="#load-more-row" hx-swap="outerHTML" class="btn btn-secondary">Показать ещё</button>
+  </div>
+{% endif %}

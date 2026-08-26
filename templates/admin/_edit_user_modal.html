@@ -1,0 +1,27 @@
+<div class="overlay" onclick="if(event.target===this) document.getElementById('modal-slot').innerHTML=''">
+  <div class="modal">
+    <h2>Редактировать пользователя</h2>
+    <form method="post" hx-post="{% url 'admin-user-edit' target.pk %}" hx-target="#modal-slot" hx-swap="innerHTML" novalidate>
+      {% csrf_token %}
+      <div class="field">
+        <label>Логин</label>
+        <input class="input" value="{{ target.username }}" disabled>
+      </div>
+      <div class="field">
+        <label>ФИО</label>
+        {{ form.full_name }}
+        {% if form.full_name.errors %}<div class="err">{{ form.full_name.errors.0 }}</div>{% endif %}
+      </div>
+      {% if target.profile.role != 'admin' %}
+      <div class="field">
+        <label>Отдел</label>
+        {{ form.department }}
+      </div>
+      {% endif %}
+      <div class="actions">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-slot').innerHTML=''">Отмена</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+    </form>
+  </div>
+</div>

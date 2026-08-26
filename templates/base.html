@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% block title %}Банк идей{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/design-system.css">
+  <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="sidebar">
+      <div class="hx" style="color:#fff;padding:0 24px 20px 24px;font-size:17px;display:flex;align-items:center;gap:9px;"><span class="brand-mark"></span> Банк идей</div>
+
+      <div class="nav">
+        {% if request.user.profile.role == 'admin' %}
+          <a class="nav-item {% if request.resolver_match.url_name == 'idea-list' %}active{% endif %}" href="{% url 'idea-list' %}">
+            <svg class="ic" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h12M3 9h12M3 13h8"/></svg>
+            <span>Все идеи</span>
+          </a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'admin-users' %}active{% endif %}" href="{% url 'admin-users' %}">
+            <svg class="ic" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.3" cy="6.3" r="2.3"/><path d="M2 15c.7-2.6 2.3-4 4.3-4s3.6 1.4 4.3 4"/><circle cx="13" cy="6.8" r="1.8"/><path d="M11.2 8.9c1.6.2 2.7 1.4 3.2 3.3"/></svg>
+            <span>Пользователи</span>
+          </a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'admin-categories' %}active{% endif %}" href="{% url 'admin-categories' %}">
+            <svg class="ic" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3.3h5.6L15 9.7 9.4 15.3 3 8.9V3.3Z"/><circle cx="5.9" cy="6.2" r="1"/></svg>
+            <span>Категории</span>
+          </a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'admin-departments' %}active{% endif %}" href="{% url 'admin-departments' %}">
+            <svg class="ic" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.4" y="2.6" width="7.6" height="12.8"/><path d="M11 7h3.6v8.4H3.4"/></svg>
+            <span>Отделы</span>
+          </a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'admin-stats' %}active{% endif %}" href="{% url 'admin-stats' %}">
+            <svg class="ic" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15V9M9 15V3M15 15v-5"/></svg>
+            <span>Статистика</span>
+          </a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'admin-god-mode' %}active{% endif %}" href="{% url 'admin-god-mode' %}">
+            <svg class="ic" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="2.4"/><path d="M9 3.6v2M9 12.4v2M14.4 9h-2M5.6 9h-2M12.7 5.3l-1.4 1.4M6.7 11.3l-1.4 1.4M12.7 12.7l-1.4-1.4M6.7 6.7 5.3 5.3"/></svg>
+            <span>Режим бога</span>
+          </a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
+            <svg class="ic" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6.6"/><circle cx="9" cy="7.2" r="2.1"/><path d="M4.7 13.9c.8-2 2.4-3.1 4.3-3.1s3.5 1.1 4.3 3.1"/></svg>
+            <span>Личный кабинет</span>
+          </a>
+        {% else %}
+          <a class="nav-item {% if request.resolver_match.url_name == 'idea-list' %}active{% endif %}" href="{% url 'idea-list' %}">
+            <svg class="ic" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h12M3 9h12M3 13h8"/></svg>
+            <span>Все идеи</span>
+          </a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'my-ideas' %}active{% endif %}" href="{% url 'my-ideas' %}">
+            <svg class="ic" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l1.5-2.5h5L10 6h6v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6z"/></svg>
+            <span>Мои идеи</span>
+          </a>
+          {% if request.user.profile.role == 'manager' %}
+          <a class="nav-item {% if request.resolver_match.url_name == 'my-reviews' %}active{% endif %}" href="{% url 'my-reviews' %}">
+            <svg class="ic" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6.6"/><path d="M5.6 9.2 7.7 11.3 12.4 6.6"/></svg>
+            <span>Мои решения</span>
+          </a>
+          {% endif %}
+          {% if request.user.profile.role == 'expert' %}
+          <a class="nav-item {% if request.resolver_match.url_name == 'my-work' %}active{% endif %}" href="{% url 'my-work' %}">
+            <svg class="ic" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="8.5" rx="1.4"/><path d="M6.5 6V4.6a1.4 1.4 0 0 1 1.4-1.4h2.2a1.4 1.4 0 0 1 1.4 1.4V6"/><path d="M2.5 10h13"/></svg>
+            <span>Мои идеи в работе</span>
+          </a>
+          {% endif %}
+          <a class="nav-item {% if request.resolver_match.url_name == 'idea-create' %}active{% endif %}" href="{% url 'idea-create' %}">
+            <svg class="ic" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6.6"/><path d="M9 5.8v6.4M5.8 9h6.4"/></svg>
+            <span>Создать идею</span>
+          </a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
+            <svg class="ic" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6.6"/><circle cx="9" cy="7.2" r="2.1"/><path d="M4.7 13.9c.8-2 2.4-3.1 4.3-3.1s3.5 1.1 4.3 3.1"/></svg>
+            <span>Личный кабинет</span>
+          </a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'top-authors' %}active{% endif %}" href="{% url 'top-authors' %}">
+            <svg class="ic" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6.6" r="3.8"/><path d="M6.4 9.9 5.1 15.3 9 13.1l3.9 2.2-1.3-5.4"/></svg>
+            <span>Топ авторов</span>
+          </a>
+        {% endif %}
+      </div>
+
+      <div class="sidebar-user">
+        <a href="{% url 'profile' %}" class="sidebar-user-row clickable">
+          <div class="avatar">{{ request.user.profile.initials }}</div>
+          <div>
+            <div class="name">{{ request.user.first_name|default:request.user.username }}</div>
+            <div class="role">{{ request.user.profile.get_role_display }}{% if request.user.profile.department %} · {{ request.user.profile.department }}{% endif %}</div>
+          </div>
+        </a>
+        <form method="post" action="{% url 'logout' %}" style="margin-top:10px;">
+          {% csrf_token %}
+          <button type="submit" class="logout-link" style="background:none;border:none;cursor:pointer;padding:0;">Выйти</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="main">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="card" style="background:#FEF4F3;border-color:#E7B3AE;">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</body>
+</html>

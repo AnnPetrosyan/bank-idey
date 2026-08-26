@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load idea_extras %}
+{% block title %}Категории — Банк идей{% endblock %}
+{% block content %}
+  <h1 class="title">Категории</h1>
+  <div class="subtitle">Категории, доступные при создании идеи. Удаление категории не затрагивает уже созданные идеи с этой категорией.</div>
+
+  {% if categories %}
+    <div class="stats-row" style="margin-bottom:24px;">
+      <div class="stat-card"><div class="num">{{ categories|length }}</div><div class="lbl">Всего категорий</div></div>
+      <div class="stat-card"><div class="num">{{ total_ideas }}</div><div class="lbl">Идей размечено категориями</div></div>
+    </div>
+  {% endif %}
+
+  <div class="card" style="margin-bottom:16px;">
+    {% if categories %}
+      {% for c in categories %}
+        <div class="mini-row">
+          <span class="mr-title">{{ c.name }}</span>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <span class="hint" style="margin:0;">{{ c.idea_count }} {{ c.idea_count|plural_idea }}</span>
+            <form method="post" action="{% url 'admin-category-delete' c.pk %}" style="margin:0;">
+              {% csrf_token %}
+              <button type="submit" class="icon-btn" title="Удалить">
+                <svg class="ic" width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4.5l9 9M13.5 4.5l-9 9"/></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state" style="padding:44px 20px;">
+        <div class="msg" style="font-size:14px;">Категорий пока нет — добавьте первую ниже.</div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="card" style="max-width:440px;">
+    <form method="post" action="{% url 'admin-category-add' %}">
+      {% csrf_token %}
+      <div class="field" style="margin-bottom:12px;">
+        <label>Новая категория</label>
+        <input class="input" type="text" name="name">
+      </div>
+      <button type="submit" class="btn btn-primary">Добавить категорию</button>
+      <div class="hint">Сразу становится доступна в форме создания идеи.</div>
+    </form>
+  </div>
+{% endblock %}

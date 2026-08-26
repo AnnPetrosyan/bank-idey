@@ -1,0 +1,70 @@
+{% if request.user.profile.role == 'manager' and idea.status == 'new' %}
+  <form method="post" action="{% url 'idea-take-review' idea.pk %}?from={{ back_from }}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary btn-block">Взять на рассмотрение</button>
+  </form>
+  <div class="hint">Идея закрепится за вами — другие руководители не смогут её решить, пока вы не примете решение.</div>
+
+{% elif request.user.profile.role == 'manager' and idea.status == 'review' and idea.reviewer == request.user %}
+  {% if show_reject_form %}
+    <form method="post" action="{% url 'idea-reject' idea.pk %}?from={{ back_from }}" hx-post="{% url 'idea-reject' idea.pk %}?from={{ back_from }}" hx-target="#idea-actions" hx-swap="innerHTML">
+      {% csrf_token %}
+      <div class="field">
+        <label>Причина отклонения (обязательно) *</label>
+        <textarea class="input {% if reject_form.reason.errors %}bad{% endif %}" name="reason">{{ reject_form.reason.value|default:'' }}</textarea>
+        {% if reject_form.reason.errors %}<div class="err">{{ reject_form.reason.errors.0 }}</div>{% endif %}
+      </div>
+      <button type="submit" class="btn btn-danger">Подтвердить отклонение</button>
+      <button type="button" class="btn btn-secondary" style="margin-left:8px;" hx-get="{% url 'idea-actions' idea.pk %}?from={{ back_from }}" hx-target="#idea-actions" hx-swap="innerHTML">Отмена</button>
+    </form>
+  {% else %}
+    <form method="post" action="{% url 'idea-approve' idea.pk %}?from={{ back_from }}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary btn-block" style="margin-bottom:10px;">Принять к реализации</button>
+    </form>
+    <button class="btn btn-danger btn-block" hx-get="{% url 'idea-reject' idea.pk %}?from={{ back_from }}" hx-target="#idea-actions" hx-swap="innerHTML">Отклонить</button>
+    <div class="hint">При «Принять» идея переходит экспертам. При «Отклонить» без причины — сохранение заблокировано.</div>
+  {% endif %}
+
+{% elif request.user.profile.role == 'manager' and idea.status == 'review' %}
+  <div class="hint" style="margin-top:0;">На рассмотрении у {{ idea.reviewer.first_name|default:idea.reviewer }} — решение может принять только он.</div>
+
+{% elif request.user.profile.role == 'expert' and idea.status == 'accepted' %}
+  <form method="post" action="{% url 'idea-take-work' idea.pk %}?from={{ back_from }}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary btn-block">Взять в работу</button>
+  </form>
+  <div class="hint">Идея закрепится за вами — «кто первый взял идею, тот и делает».</div>
+
+{% elif request.user.profile.role == 'expert' and idea.status == 'in_progress' and idea.assigned_expert == request.user %}
+  {% if show_reject_form %}
+    <form method="post" action="{% url 'idea-reject-unrealizable' idea.pk %}?from={{ back_from }}" hx-post="{% url 'idea-reject-unrealizable' idea.pk %}?from={{ back_from }}" hx-target="#idea-actions" hx-swap="innerHTML">
+      {% csrf_token %}
+      <div class="field">
+        <label>Причина отклонения (обязательно) *</label>
+        <textarea class="input {% if reject_form.reason.errors %}bad{% endif %}" name="reason">{{ reject_form.reason.value|default:'' }}</textarea>
+        {% if reject_form.reason.errors %}<div class="err">{{ reject_form.reason.errors.0 }}</div>{% endif %}
+      </div>
+      <button type="submit" class="btn btn-danger">Подтвердить отклонение</button>
+      <button type="button" class="btn btn-secondary" style="margin-left:8px;" hx-get="{% url 'idea-actions' idea.pk %}?from={{ back_from }}" hx-target="#idea-actions" hx-swap="innerHTML">Отмена</button>
+    </form>
+  {% else %}
+    <form method="post" action="{% url 'idea-complete' idea.pk %}?from={{ back_from }}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary btn-block" style="margin-bottom:10px;">Завершить</button>
+    </form>
+    <button class="btn btn-danger btn-block" hx-get="{% url 'idea-reject-unrealizable' idea.pk %}?from={{ back_from }}" hx-target="#idea-actions" hx-swap="innerHTML">Отметить нереализуемой</button>
+  {% endif %}
+
+{% elif request.user.profile.role == 'expert' and idea.status == 'in_progress' %}
+  <div class="hint" style="margin-top:0;">В работе у {{ idea.assigned_expert.first_name|default:idea.assigned_expert }} — решение может принять только он.</div>
+
+{% else %}
+  <div class="hint" style="margin-top:0;">
+    {% if idea.status == 'done' or idea.status == 'rejected_by_manager' or idea.status == 'rejected_by_expert' %}
+      Статус финальный — дальнейшие действия недоступны.
+    {% else %}
+      У вашей роли нет действий, доступных на этом статусе.
+    {% endif %}
+  </div>
+{% endif %}
