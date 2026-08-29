@@ -1,4 +1,5 @@
 import re
+from django.contrib.auth.forms import AuthenticationForm
 import secrets
 import string
 
@@ -81,3 +82,17 @@ class UserEditForm(forms.Form):
             user.profile.department = self.cleaned_data.get('department')
             user.profile.save()
         return user
+class StyledLoginForm(AuthenticationForm):
+    username = forms.CharField(
+        label='Логин',
+        widget=forms.TextInput(attrs={
+            'class': 'input', 'placeholder': 'например, employee_sales', 'autofocus': True,
+        }))
+    password = forms.CharField(
+        label='Пароль',
+        widget=forms.PasswordInput(attrs={'class': 'input'}))
+
+    error_messages = {
+        'invalid_login': 'Неверный логин или пароль.',
+        'inactive': 'Учётная запись отключена.',
+    }

@@ -1,3 +1,5 @@
+from django.views.generic.base import RedirectView
+from accounts.forms import StyledLoginForm
 from django.contrib import admin
 from django.urls import path
 from django.contrib.auth import views as auth_views
@@ -15,7 +17,8 @@ from accounts.views import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
+    path('login/', auth_views.LoginView.as_view(
+        template_name='accounts/login.html', authentication_form=StyledLoginForm), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('ideas/', IdeaListView.as_view(), name='idea-list'),
     path('ideas/new/', IdeaCreateView.as_view(), name='idea-create'),
@@ -44,4 +47,5 @@ urlpatterns = [
     path('manage/departments/<int:pk>/delete/', department_delete, name='admin-department-delete'),
     path('manage/stats/', AdminStatsView.as_view(), name='admin-stats'),
     path('manage/god-mode/', god_mode, name='admin-god-mode'),
+    path('', RedirectView.as_view(pattern_name='idea-list', permanent=False)),
 ]
