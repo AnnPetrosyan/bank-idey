@@ -15,6 +15,13 @@ from .models import Idea, Category, STATUS_CHOICES
 from .forms import IdeaForm, IdeaDecisionForm
 from .filters import IdeaFilter
 
+def _mark_errors_shared(form):
+    for name in form.fields:
+        if form[name].errors:
+            widget = form.fields[name].widget
+            existing = widget.attrs.get('class', '')
+            widget.attrs['class'] = (existing + ' bad').strip()
+
 
 BADGE_COLORS = {
     'new': 'd-new', 'review': 'd-review', 'accepted': 'd-accepted',
@@ -112,11 +119,7 @@ class IdeaCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        for name in form.fields:
-            if form[name].errors:
-                widget = form.fields[name].widget
-                existing = widget.attrs.get('class', '')
-                widget.attrs['class'] = (existing + ' bad').strip()
+        _mark_errors_shared(form)
         return super().form_invalid(form)
 
 
@@ -445,4 +448,28 @@ def god_mode(request):
         'ideas': Idea.objects.order_by('-created_at'),
         'selected_idea': idea,
         'status_choices': STATUS_CHOICES,
+    })
+def idea_edit(request, pk):
+    idea = get_object_or_404(Idea, pk=pk)
+    if idea.author != request.user:
+        return HttpResponseForbidden('Только автор может редактировать свою идею')
+    if idea.status != 'new':
+        return HttpResponseForbidden('Идею можно редактировать только в статусе «Новая»')
+
+    if request.method == 'POST':
+        form = IdeaForm(request.POST, instance=idea)
+        if form.is_valid():
+            fresh = Idea.objects.get(pk=pk)
+            if fresh.status != 'new':
+                messages.error(request, 'Идею уже взяли на рассмотрение, пока вы её редактировали — правки не сохранены')
+                return redirect('idea-detail', pk=pk)
+            form.save()
+            messages.success(request, 'Идея обновлена')
+            return _redirect_to_detail(request, pk)
+        _mark_errors_shared(form)
+    else:
+        form = IdeaForm(instance=idea)
+
+    return render(request, 'ideas/form.html', {
+        'form': form, 'is_edit': True, 'idea': idea, 'back_from': _get_back_from(request),
     })

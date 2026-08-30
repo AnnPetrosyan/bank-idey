@@ -1,3 +1,7 @@
+{% if idea.author == request.user and idea.status == 'new' %}
+  <a href="{% url 'idea-edit' idea.pk %}{% if back_from %}?from={{ back_from }}{% endif %}" class="btn btn-secondary btn-block" style="margin-bottom:10px;">Редактировать идею</a>
+{% endif %}
+
 {% if request.user.profile.role == 'manager' and idea.status == 'new' %}
   <form method="post" action="{% url 'idea-take-review' idea.pk %}?from={{ back_from }}">
     {% csrf_token %}
@@ -58,6 +62,9 @@
 
 {% elif request.user.profile.role == 'expert' and idea.status == 'in_progress' %}
   <div class="hint" style="margin-top:0;">В работе у {{ idea.assigned_expert.first_name|default:idea.assigned_expert }} — решение может принять только он.</div>
+
+{% elif idea.author == request.user and idea.status == 'new' %}
+  {# кнопка «Редактировать» уже показана выше — сотруднику без роли руководителя/эксперта здесь больше нечего показывать #}
 
 {% else %}
   <div class="hint" style="margin-top:0;">

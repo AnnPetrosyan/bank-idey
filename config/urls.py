@@ -8,7 +8,7 @@ from ideas.views import (
     MyIdeasView, MyReviewsView, MyWorkView, ProfileView, TopAuthorsView,
     CategoryListView, category_add, category_delete, AdminStatsView, god_mode,
     idea_actions, idea_take_review, idea_approve, idea_reject,
-    idea_take_work, idea_complete, idea_reject_unrealizable,
+    idea_take_work, idea_complete, idea_reject_unrealizable, idea_edit,
 )
 from accounts.views import (
     UserListView, user_add, user_edit, user_delete,
@@ -48,4 +48,5 @@ urlpatterns = [
     path('manage/stats/', AdminStatsView.as_view(), name='admin-stats'),
     path('manage/god-mode/', god_mode, name='admin-god-mode'),
     path('', RedirectView.as_view(pattern_name='idea-list', permanent=False)),
+    path('ideas/<int:pk>/edit/', idea_edit, name='idea-edit'),
 ]

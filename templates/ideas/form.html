@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
-{% block title %}Новая идея — Банк идей{% endblock %}
+{% block title %}{% if is_edit %}Редактировать идею{% else %}Новая идея{% endif %} — Банк идей{% endblock %}
 {% block content %}
-  <a href="{% url 'idea-list' %}" class="crumb">← Назад</a>
-  <h1 class="title">Новая идея</h1>
+  {% if is_edit %}
+    <a href="{% url 'idea-detail' idea.pk %}{% if back_from %}?from={{ back_from }}{% endif %}" class="crumb">← Назад</a>
+  {% else %}
+    <a href="{% url 'idea-list' %}" class="crumb">← Назад</a>
+  {% endif %}
+  <h1 class="title">{% if is_edit %}Редактировать идею{% else %}Новая идея{% endif %}</h1>
   <div class="card" style="max-width:640px;">
     <form method="post" novalidate>
       {% csrf_token %}
@@ -26,9 +30,9 @@
         {{ form.description }}
         {% if form.description.errors %}<div class="err">{{ form.description.errors.0 }}</div>{% endif %}
       </div>
-      <button type="submit" class="btn btn-primary">Отправить на рассмотрение</button>
-      <a href="{% url 'idea-list' %}" class="btn btn-secondary" style="margin-left:8px;">Отмена</a>
-      <div class="hint">* — обязательные поля. После отправки идея получает статус «Новая» и попадает в общий список.</div>
+      <button type="submit" class="btn btn-primary">{% if is_edit %}Сохранить изменения{% else %}Отправить на рассмотрение{% endif %}</button>
+      <a href="{% if is_edit %}{% url 'idea-detail' idea.pk %}{% if back_from %}?from={{ back_from }}{% endif %}{% else %}{% url 'idea-list' %}{% endif %}" class="btn btn-secondary" style="margin-left:8px;">Отмена</a>
+      {% if not is_edit %}<div class="hint">* — обязательные поля. После отправки идея получает статус «Новая» и попадает в общий список.</div>{% endif %}
     </form>
   </div>
 {% endblock %}
