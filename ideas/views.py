@@ -28,7 +28,15 @@ BADGE_COLORS = {
     'in_progress': 'd-progress', 'done': 'd-done',
     'rejected_by_manager': 'd-rej-mgr', 'rejected_by_expert': 'd-rej-exp',
 }
-
+STATUS_FIELD_RULES = {
+    'new': {'clear': ['reviewer', 'assigned_expert', 'rejection_reason'], 'needs': []},
+    'review': {'clear': ['assigned_expert', 'rejection_reason'], 'needs': ['reviewer']},
+    'accepted': {'clear': ['assigned_expert', 'rejection_reason'], 'needs': ['reviewer']},
+    'in_progress': {'clear': ['rejection_reason'], 'needs': ['reviewer', 'assigned_expert']},
+    'done': {'clear': ['rejection_reason'], 'needs': ['reviewer', 'assigned_expert']},
+    'rejected_by_manager': {'clear': ['assigned_expert'], 'needs': ['reviewer', 'rejection_reason']},
+    'rejected_by_expert': {'clear': [], 'needs': ['reviewer', 'assigned_expert', 'rejection_reason']},
+}
 # соответствие ?from=... из ссылки → (маршрут для крошки, подпись крошки)
 BACK_MAP = {
     'my-ideas': ('my-ideas', 'Назад к моим идеям'),
@@ -439,11 +447,29 @@ def god_mode(request):
         idea = Idea.objects.order_by('-created_at').first()
 
     if request.method == 'POST' and idea:
-        idea.status = request.POST.get('new_status')
-        idea.save()
-        messages.success(request, 'Статус изменён в обход обычного потока («режим бога»)')
-        return redirect(f"{reverse('admin-god-mode')}?idea_id={idea.pk}")
+        new_status = request.POST.get('new_status')
+        rules = STATUS_FIELD_RULES.get(new_status, {'clear': [], 'needs': []})
 
+        idea.status = new_status
+        for field in rules['clear']:
+            setattr(idea, field, None)
+        idea.save()
+
+        field_labels = {
+            'reviewer': 'руководитель (reviewer)',
+            'assigned_expert': 'эксперт (assigned_expert)',
+            'rejection_reason': 'причина отклонения',
+        }
+        missing = [field_labels[f] for f in rules['needs'] if not getattr(idea, f)]
+        if missing:
+            messages.error(
+                request,
+                'Статус изменён, но не заполнено: ' + ', '.join(missing) +
+                ' — обычные действия по этой идее не будут работать ни у кого, пока поле не заполнено.'
+            )
+        else:
+            messages.success(request, 'Статус изменён в обход обычного потока («режим бога»)')
+        return redirect(f"{reverse('admin-god-mode')}?idea_id={idea.pk}")
     return render(request, 'admin/god_mode.html', {
         'ideas': Idea.objects.order_by('-created_at'),
         'selected_idea': idea,
